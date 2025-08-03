@@ -1,0 +1,285 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TradeFreezerUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 230, 0, 200)
+Frame.Position = UDim2.new(0.5, -115, 0.5, -100)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+Frame.BorderSizePixel = 0
+Frame.BackgroundTransparency = 1
+Frame.Parent = ScreenGui
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+-- Gradient
+local Gradient = Instance.new("UIGradient", Frame)
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 30))
+})
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 0, 28)
+Title.Position = UDim2.new(0, 12, 0, 5)
+Title.BackgroundTransparency = 1
+Title.Text = "TRADE FREEZER SCRIPT"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextTransparency = 1
+Title.Parent = Frame
+
+-- Glow Title
+local Glow = Title:Clone()
+Glow.TextColor3 = Color3.fromRGB(120, 180, 255)
+Glow.TextTransparency = 0.7
+Glow.ZIndex = 0
+Glow.Parent = Frame
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+CloseBtn.Position = UDim2.new(1, -28, 0, 6)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.TextTransparency = 1
+CloseBtn.Parent = Frame
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+end)
+
+-- Minimize Button
+local MinBtn = Instance.new("TextButton")
+MinBtn.Size = UDim2.new(0, 22, 0, 22)
+MinBtn.Position = UDim2.new(1, -54, 0, 6)
+MinBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+MinBtn.Text = "-"
+MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 16
+MinBtn.TextTransparency = 1
+MinBtn.Parent = Frame
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
+
+-- Minimized Icon
+local MiniIcon = Instance.new("TextButton")
+MiniIcon.Size = UDim2.new(0, 40, 0, 40)
+MiniIcon.Position = UDim2.new(0.05, 0, 0.8, 0)
+MiniIcon.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MiniIcon.Text = "+"
+MiniIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+MiniIcon.Font = Enum.Font.GothamBold
+MiniIcon.TextSize = 22
+MiniIcon.Visible = false
+MiniIcon.Parent = ScreenGui
+Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
+
+MinBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = false
+    MiniIcon.Visible = true
+end)
+MiniIcon.MouseButton1Click:Connect(function()
+    Frame.Visible = true
+    MiniIcon.Visible = false
+end)
+
+-- Username Victim Input
+local UserBox = Instance.new("TextBox")
+UserBox.Size = UDim2.new(0.8, 0, 0, 25)
+UserBox.Position = UDim2.new(0.1, 0, 0.22, 0)
+UserBox.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+UserBox.PlaceholderText = "Username Victim"
+UserBox.PlaceholderColor3 = Color3.fromRGB(170, 170, 200)
+UserBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+UserBox.Font = Enum.Font.GothamMedium
+UserBox.TextSize = 14
+UserBox.Parent = Frame
+Instance.new("UICorner", UserBox).CornerRadius = UDim.new(0, 5)
+
+-- Avatar Display
+local Avatar = Instance.new("ImageLabel")
+Avatar.Size = UDim2.new(0, 55, 0, 55)
+Avatar.Position = UDim2.new(0.37, 0, 0.4, 0)
+Avatar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+Avatar.Image = ""
+Avatar.ImageTransparency = 1
+Avatar.Parent = Frame
+Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
+
+-- Loading Label
+local LoadingLabel = Instance.new("TextLabel")
+LoadingLabel.Size = UDim2.new(1, 0, 0, 20)
+LoadingLabel.Position = UDim2.new(0, 0, 0.7, 0)
+LoadingLabel.BackgroundTransparency = 1
+LoadingLabel.Text = ""
+LoadingLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
+LoadingLabel.Font = Enum.Font.GothamSemibold
+LoadingLabel.TextSize = 14
+LoadingLabel.Parent = Frame
+
+-- Spinner
+local Spinner = Instance.new("ImageLabel")
+Spinner.Size = UDim2.new(0, 25, 0, 25)
+Spinner.Position = UDim2.new(0.5, -12, 0.7, 0)
+Spinner.AnchorPoint = Vector2.new(0.5, 0)
+Spinner.BackgroundTransparency = 1
+Spinner.Image = "rbxassetid://6034989556"
+Spinner.ImageColor3 = Color3.fromRGB(180, 180, 255)
+Spinner.Visible = false
+Spinner.Parent = Frame
+
+-- Fetch Avatar
+UserBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed and UserBox.Text ~= "" then
+        Spinner.Visible = true
+        LoadingLabel.Text = "Loading avatar..."
+        Spinner.Rotation = 0
+        local spinning = true
+        task.spawn(function()
+            while spinning do
+                Spinner.Rotation += 5
+                task.wait(0.01)
+            end
+        end)
+
+        local success, userId = pcall(function()
+            return Players:GetUserIdFromNameAsync(UserBox.Text)
+        end)
+
+        if success and userId then
+            local content, isReady = Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+            if isReady and content ~= "" then
+                Avatar.Image = content
+                Avatar.ImageTransparency = 1
+                TweenService:Create(Avatar, TweenInfo.new(0.4), {ImageTransparency = 0}):Play()
+            else
+                LoadingLabel.Text = "Failed to load avatar!"
+            end
+        else
+            LoadingLabel.Text = "User not found!"
+            Avatar.Image = ""
+        end
+
+        task.wait(1)
+        Spinner.Visible = false
+        spinning = false
+        LoadingLabel.Text = ""
+    end
+end)
+
+-- Checkbox Creator (✓ animation + loading both)
+local function createCheckbox(text, yPos)
+    local CheckFrame = Instance.new("Frame")
+    CheckFrame.Size = UDim2.new(0.8, 0, 0, 20)
+    CheckFrame.Position = UDim2.new(0.1, 0, yPos, 0)
+    CheckFrame.BackgroundTransparency = 1
+    CheckFrame.Parent = Frame
+
+    local Box = Instance.new("TextButton")
+    Box.Size = UDim2.new(0, 16, 0, 16)
+    Box.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    Box.Text = ""
+    Box.Parent = CheckFrame
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 3)
+
+    local CheckMark = Instance.new("TextLabel")
+    CheckMark.Size = UDim2.new(1, 0, 1, 0)
+    CheckMark.Text = "✓"
+    CheckMark.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CheckMark.TextTransparency = 1
+    CheckMark.Font = Enum.Font.GothamBold
+    CheckMark.TextSize = 14
+    CheckMark.Parent = Box
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -22, 1, 0)
+    Label.Position = UDim2.new(0, 22, 0, 0)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.TextColor3 = Color3.new(1, 1, 1)
+    Label.Font = Enum.Font.GothamSemibold
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = CheckFrame
+
+    local toggled = false
+    Box.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        TweenService:Create(Box, TweenInfo.new(0.2), {BackgroundColor3 = toggled and Color3.fromRGB(80, 200, 120) or Color3.fromRGB(60, 60, 80)}):Play()
+        TweenService:Create(CheckMark, TweenInfo.new(0.2), {TextTransparency = toggled and 0 or 1}):Play()
+
+        if toggled then
+            Spinner.Visible = true
+            Spinner.Rotation = 0
+            local spinning = true
+            task.spawn(function()
+                while spinning and Spinner.Visible do
+                    Spinner.Rotation += 5
+                    task.wait(0.01)
+                end
+            end)
+
+            if text == "Freeze Trade" then
+                LoadingLabel.Text = "Freezing trade..."
+                task.wait(4)
+                LoadingLabel.Text = "Trade frozen!"
+            elseif text == "force accept" then
+                LoadingLabel.Text = "Forcing accept..."
+                task.wait(4)
+                LoadingLabel.Text = "Force accepted!"
+            end
+
+            Spinner.Visible = false
+            spinning = false
+            task.wait(1.2)
+            LoadingLabel.Text = ""
+        end
+    end)
+end
+
+createCheckbox("Freeze Trade", 0.8)
+createCheckbox("force accept", 0.9)
+
+-- Dragging Feature
+local dragging, dragStart, startPos
+Frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+-- Fade-in Animation
+TweenService:Create(Frame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+for _, obj in ipairs(Frame:GetDescendants()) do
+    if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("ImageLabel") then
+        TweenService:Create(obj, TweenInfo.new(0.5), {TextTransparency = 0, ImageTransparency = 0}):Play()
+    end
+end
